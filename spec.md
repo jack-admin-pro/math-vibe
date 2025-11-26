@@ -11,14 +11,14 @@ A web-based, mobile-first educational PWA for 2nd-grade students.
 * **Icons:** Lucide React.
 * **Backend:** Supabase (PostgreSQL) via `@/lib/supabase/client`.
 * **Animations:** `canvas-confetti` (for rewards), CSS transitions for UI states.
-* **Deployment:** Vercel.
+* **Deployment:** Vercel (CI/CD connected to GitHub).
 
 ## 3. Database Schema (Supabase)
 
 ### Table: `profiles`
 * `id` (uuid, PK)
 * `name` (text) - e.g., "Hela", "Tata", "Mama"
-* `avatar_color` (text) - Hex code used for UI styling
+* `avatar_color` (text) - Hex code used for UI styling (requires inline style override).
 * `created_at` (timestamp)
 
 ### Table: `game_results`
@@ -32,16 +32,17 @@ A web-based, mobile-first educational PWA for 2nd-grade students.
 
 ## 4. App Structure & Routes
 * **`/` (Home):** Profile Picker.
-    * **Logic:** Fetches profiles from DB. Handles selection with "Glowing Orb" active state.
-    * **UX:** Requires user to pick a profile before entering.
+    * **Logic:** Fetches profiles from DB. Handles selection with "Glowing Orb" active state (ring + scale).
+    * **UX:** Requires user to pick a profile before entering. Falls back to neutral color if DB hex is missing.
 * **`/menu`:** Game Mode Selection.
     * **Layout:** Strictly single-screen on mobile (no scrolling).
-    * **Components:** 3 huge cards (Practice, Time Attack, Survival).
+    * **Components:** 3 huge cards (Practice, Time Attack, Survival). Cards adapt width on desktop.
 * **`/game/[mode]`:** The Core Game Loop.
-    * **Layout:** Fixed height `100dvh` (no scrolling).
+    * **Layout:** Fixed height `100dvh` (no scrolling allowed). Padded to prevent clipping.
     * **Components:** Score Header, Question Card (adaptive size), NumPad (bottom fixed).
 * **`/leaderboard`:** High Scores.
     * **Layout:** Tabbed interface (Wyzwanie / Przetrwanie).
+    * **Data Fetching:** Direct Supabase queries (avoiding complex chaining to satisfy Vercel TypeScript build).
     * **UX:** Scrollable list inside a fixed container.
 
 ## 5. Key Features & Implementation Details
@@ -53,7 +54,8 @@ A web-based, mobile-first educational PWA for 2nd-grade students.
 ### B. Input System (Hybrid)
 1.  **On-Screen NumPad:**
     * Layout: Grid 0-9, C, Backspace.
-    * **Styling:** Uses "Shadow 3D" technique (no border-width changes) to prevent layout shifts on press.
+    * **Styling (CRITICAL):** Uses "Shadow 3D" technique (box-shadow) instead of borders to prevent layout shifts/jumping on activation.
+    * **State:** Disabled state uses transparent shadow to maintain dimensions.
 2.  **Physical Keyboard:**
     * Global `keydown` listener attached in Game Page.
     * Maps Keys `0-9`, `Backspace`, `Enter` to game functions.
@@ -76,7 +78,5 @@ A web-based, mobile-first educational PWA for 2nd-grade students.
     * **Error:** Screen shake + Red toast.
 * **Profile UX:** Selected profile maintains background color + adds `ring-4` and `scale-110`.
 
-## 7. Future Roadmap (Post v1.0)
-* Add "Division with Remainders" mode (Level 3).
-* Add "Weekly Challenge" logic.
-* Add Sound Effects (Web Audio API).
+## 7. Known Build Constraints
+* **Vercel/TypeScript:** Complex Supabase query chains must be cast to `any` or split into separate await calls to pass the strict build process.
