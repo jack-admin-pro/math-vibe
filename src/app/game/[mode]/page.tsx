@@ -425,11 +425,11 @@ export default function GamePage() {
 
   // Main game UI
   return (
-    <main className={`flex min-h-dvh flex-col p-4 safe-area-inset transition-colors duration-300 ${
+    <main className={`flex h-full flex-col justify-between p-4 pb- safe-area-inset transition-colors duration-300 ${
       isFlashing ? "bg-rose-100" : ""
     }`}>
       {/* Header */}
-      <header className="flex items-center justify-between py-2">
+      <header className="flex shrink-0 items-center justify-between py-2">
         <button
           onClick={() => router.push("/menu")}
           className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/80 shadow-sm backdrop-blur-sm transition-transform active:scale-95"
@@ -441,7 +441,7 @@ export default function GamePage() {
 
       {/* Progress Bar (Practice only) */}
       {mode === "practice" && (
-        <div className="mt-4">
+        <div className="mt-4 shrink-0">
           <Progress 
             value={(gameState.totalQuestions / gameState.targetQuestions) * 100} 
             className="h-3"
@@ -450,30 +450,30 @@ export default function GamePage() {
       )}
 
       {/* Problem Display */}
-      <div className="flex flex-1 flex-col items-center justify-center">
+      <div className="flex flex-1 shrink flex-col items-center justify-center py-2">
         <Card 
-          className={`w-full max-w-sm p-8 text-center shadow-xl transition-transform duration-300 ${
+          className={`w-full max-w-sm p-4 md:p-8 text-center shadow-xl transition-transform duration-300 ${
             isShaking ? "animate-shake" : ""
           }`}
         >
           {/* Problem */}
-          <div className="mb-6">
-            <p className="text-5xl font-extrabold tracking-wide text-foreground">
+          <div className="mb-4 md:mb-6">
+            <p className="text-4xl md:text-5xl font-extrabold tracking-wide text-foreground">
               {gameState.currentProblem?.display}
             </p>
-            <p className="mt-2 text-3xl text-muted-foreground">=</p>
+            <p className="mt-2 text-2xl md:text-3xl text-muted-foreground">=</p>
           </div>
 
           {/* Answer Display */}
-          <div className="relative mx-auto h-20 w-48 overflow-hidden rounded-2xl bg-gray-100">
+          <div className="relative mx-auto h-16 md:h-20 w-40 md:w-48 overflow-hidden rounded-2xl bg-gray-100">
             <div className="flex h-full items-center justify-center">
               {showCorrectAnswer ? (
                 <div className="flex items-center gap-2 text-rose-500">
-                  <X className="h-8 w-8" />
-                  <span className="text-4xl font-bold line-through">{answer}</span>
+                  <X className="h-6 w-6 md:h-8 md:w-8" />
+                  <span className="text-3xl md:text-4xl font-bold line-through">{answer}</span>
                 </div>
               ) : (
-                <span className="text-5xl font-extrabold text-foreground">
+                <span className="text-4xl md:text-5xl font-extrabold text-foreground">
                   {answer || (
                     <span className="text-gray-300">?</span>
                   )}
@@ -482,15 +482,15 @@ export default function GamePage() {
             </div>
             {/* Cursor blink */}
             {!showCorrectAnswer && answer === "" && (
-              <div className="absolute right-4 top-1/2 h-10 w-1 -translate-y-1/2 animate-pulse bg-primary" />
+              <div className="absolute right-4 top-1/2 h-8 md:h-10 w-1 -translate-y-1/2 animate-pulse bg-primary" />
             )}
           </div>
 
           {/* Correct Answer Reveal */}
           {showCorrectAnswer && (
-            <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-emerald-100 p-3 text-emerald-700">
-              <Check className="h-6 w-6" />
-              <span className="text-2xl font-bold">
+            <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-emerald-100 p-2 md:p-3 text-emerald-700">
+              <Check className="h-5 w-5 md:h-6 md:w-6" />
+              <span className="text-xl md:text-2xl font-bold">
                 {gameState.currentProblem?.answer}
               </span>
             </div>
@@ -499,7 +499,7 @@ export default function GamePage() {
       </div>
 
       {/* NumPad */}
-      <div className="pb-4">
+      <div className="shrink-0 pb-safe">
         <NumPad
           value={answer}
           onChange={setAnswer}

@@ -46,7 +46,7 @@ export function NumPad({
 
   const buttonBase = `
     flex items-center justify-center 
-    rounded-2xl font-bold text-2xl
+    rounded-2xl font-bold text-xl md:text-2xl
     transition-all duration-150
     active:scale-95 
     disabled:opacity-40 disabled:cursor-not-allowed
@@ -59,18 +59,18 @@ export function NumPad({
     text-foreground
     hover:bg-gray-50
     active:bg-gray-100
-    h-16
+    h-14 md:h-16
   `;
 
   const actionButton = `
     ${buttonBase}
-    h-16
+    h-14 md:h-16
   `;
 
   return (
     <div className="w-full max-w-xs mx-auto">
       {/* Number Grid */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 md:gap-3">
         {/* Row 1: 1-3 */}
         {["1", "2", "3"].map((num) => (
           <button
@@ -127,7 +127,7 @@ export function NumPad({
           disabled={disabled}
           className={`${actionButton} bg-amber-100 text-amber-600 hover:bg-amber-200 active:bg-amber-300`}
         >
-          <Delete className="h-6 w-6" />
+          <Delete className="h-5 w-5 md:h-6 md:w-6" />
         </button>
       </div>
 
@@ -138,16 +138,16 @@ export function NumPad({
         disabled={disabled || value === ""}
         className={`
           ${buttonBase}
-          mt-4 w-full h-16
+          mt-3 md:mt-4 w-full h-14 md:h-16
           bg-gradient-to-r from-emerald-400 to-teal-500
-          text-white text-xl
+          text-white text-lg md:text-xl
           shadow-lg shadow-emerald-200/50
           hover:from-emerald-500 hover:to-teal-600
           active:from-emerald-600 active:to-teal-700
           disabled:from-gray-300 disabled:to-gray-400 disabled:shadow-none
         `}
       >
-        <Check className="mr-2 h-6 w-6" />
+        <Check className="mr-2 h-5 w-5 md:h-6 md:w-6" />
         Sprawdź
       </button>
     </div>
