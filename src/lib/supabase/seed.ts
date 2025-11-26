@@ -39,8 +39,7 @@ export async function seedProfiles(): Promise<boolean> {
 export async function getProfiles(): Promise<Profile[]> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
-    .order('name');
+    .select('*');
 
   if (error) {
     console.error('Error fetching profiles:', error);
