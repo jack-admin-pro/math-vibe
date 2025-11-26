@@ -25,24 +25,30 @@ export default function LeaderboardPage() {
       setLoading(true);
       try {
         // Fetch Time Attack results
-        const { data: timeAttackData, error: timeAttackError } = await supabase
+        let timeAttackQuery = supabase
           .from('game_results')
-          .select('*, profiles(name, avatar_color)')
-          .eq('mode', 'time_attack')
-          .order('score', { ascending: false })
-          .order('created_at', { ascending: false })
-          .limit(20);
+          .select('*, profiles(name, avatar_color)');
+        
+        timeAttackQuery = timeAttackQuery.eq('mode', 'time_attack');
+        timeAttackQuery = timeAttackQuery.order('score', { ascending: false });
+        timeAttackQuery = timeAttackQuery.order('created_at', { ascending: false });
+        timeAttackQuery = timeAttackQuery.limit(20);
+        
+        const { data: timeAttackData, error: timeAttackError } = await timeAttackQuery;
 
         if (timeAttackError) throw timeAttackError;
 
         // Fetch Survival results
-        const { data: survivalData, error: survivalError } = await supabase
+        let survivalQuery = supabase
           .from('game_results')
-          .select('*, profiles(name, avatar_color)')
-          .eq('mode', 'survival')
-          .order('score', { ascending: false })
-          .order('created_at', { ascending: false })
-          .limit(20);
+          .select('*, profiles(name, avatar_color)');
+        
+        survivalQuery = survivalQuery.eq('mode', 'survival');
+        survivalQuery = survivalQuery.order('score', { ascending: false });
+        survivalQuery = survivalQuery.order('created_at', { ascending: false });
+        survivalQuery = survivalQuery.limit(20);
+        
+        const { data: survivalData, error: survivalError } = await survivalQuery;
 
         if (survivalError) throw survivalError;
 
