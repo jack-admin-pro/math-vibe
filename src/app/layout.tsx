@@ -39,10 +39,12 @@ export default function RootLayout({
   return (
     <html lang="pl">
       <body
-        className={`${nunito.variable} font-sans antialiased bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 min-h-dvh overscroll-none`}
+        className={`${nunito.variable} font-sans antialiased bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 h-[100dvh] overflow-hidden overscroll-none`}
       >
         <Providers>
-          {children}
+          <div className="flex flex-col h-full w-full">
+            {children}
+          </div>
         </Providers>
         <Toaster position="top-center" richColors />
       </body>
