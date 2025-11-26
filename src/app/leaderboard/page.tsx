@@ -24,31 +24,13 @@ export default function LeaderboardPage() {
     async function fetchLeaderboards() {
       setLoading(true);
       try {
-        // Fetch Time Attack results
-        let timeAttackQuery = supabase
-          .from('game_results')
-          .select('*, profiles(name, avatar_color)');
-        
-        timeAttackQuery = timeAttackQuery.eq('mode', 'time_attack');
-        timeAttackQuery = timeAttackQuery.order('score', { ascending: false });
-        timeAttackQuery = timeAttackQuery.order('created_at', { ascending: false });
-        timeAttackQuery = timeAttackQuery.limit(20);
-        
-        const { data: timeAttackData, error: timeAttackError } = await timeAttackQuery;
+        // Fetch Time Attack results - fully chained query
+        const { data: timeAttackData, error: timeAttackError } = await supabase.from('game_results').select('*, profiles(name, avatar_color)').eq('mode', 'time_attack').order('score', { ascending: false }).order('created_at', { ascending: false }).limit(20);
 
         if (timeAttackError) throw timeAttackError;
 
-        // Fetch Survival results
-        let survivalQuery = supabase
-          .from('game_results')
-          .select('*, profiles(name, avatar_color)');
-        
-        survivalQuery = survivalQuery.eq('mode', 'survival');
-        survivalQuery = survivalQuery.order('score', { ascending: false });
-        survivalQuery = survivalQuery.order('created_at', { ascending: false });
-        survivalQuery = survivalQuery.limit(20);
-        
-        const { data: survivalData, error: survivalError } = await survivalQuery;
+        // Fetch Survival results - fully chained query
+        const { data: survivalData, error: survivalError } = await supabase.from('game_results').select('*, profiles(name, avatar_color)').eq('mode', 'survival').order('score', { ascending: false }).order('created_at', { ascending: false }).limit(20);
 
         if (survivalError) throw survivalError;
 
