@@ -86,46 +86,58 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-5">
-              {displayProfiles.map((profile) => (
-                <button
-                  key={profile.id}
-                  onClick={() => handleProfileSelect(profile)}
-                  className={`group relative flex h-28 w-28 flex-col items-center justify-center rounded-3xl bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 ${
-                    currentProfile?.id === profile.id
-                      ? "ring-4 ring-offset-2 ring-[--ring-color]"
-                      : ""
-                  }`}
-                  style={
-                    { '--ring-color': profile.avatar_color } as React.CSSProperties
-                  }
-                >
-                  {/* Glow effect on hover */}
-                  <div
-                    className="absolute inset-0 rounded-3xl opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-40"
-                    style={{ backgroundColor: profile.avatar_color }}
-                  />
-                  
-                  {/* Avatar */}
-                  <div
-                    className="relative h-14 w-14 rounded-full shadow-inner transition-transform duration-300 group-hover:scale-110"
-                    style={{ backgroundColor: profile.avatar_color }}
+              {displayProfiles.map((profile) => {
+                const isSelected = currentProfile?.id === profile.id;
+                return (
+                  <button
+                    key={profile.id}
+                    onClick={() => handleProfileSelect(profile)}
+                    className={`group relative flex h-28 w-28 flex-col items-center justify-center rounded-3xl bg-white shadow-lg transition-all duration-300 hover:shadow-xl active:scale-95 ${
+                      isSelected
+                        ? "scale-110 ring-4 ring-offset-2"
+                        : "hover:scale-105"
+                    }`}
+                    style={
+                      isSelected
+                        ? { 
+                            boxShadow: `0 0 0 4px ${profile.avatar_color}`,
+                            transform: 'scale(1.1)'
+                          }
+                        : undefined
+                    }
                   >
-                    {/* Face features */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="flex gap-2">
-                        <div className="h-2 w-2 rounded-full bg-white/80" />
-                        <div className="h-2 w-2 rounded-full bg-white/80" />
+                    {/* Glow effect on hover and selected */}
+                    <div
+                      className={`absolute inset-0 rounded-3xl blur-md transition-opacity duration-300 ${
+                        isSelected ? "opacity-40" : "opacity-0 group-hover:opacity-40"
+                      }`}
+                      style={{ backgroundColor: profile.avatar_color }}
+                    />
+                    
+                    {/* Avatar - ALWAYS has background color */}
+                    <div
+                      className={`relative h-14 w-14 rounded-full text-white shadow-inner transition-transform duration-300 ${
+                        isSelected ? "scale-110" : "group-hover:scale-110"
+                      }`}
+                      style={{ backgroundColor: profile.avatar_color }}
+                    >
+                      {/* Face features */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="flex gap-2">
+                          <div className="h-2 w-2 rounded-full bg-white/80" />
+                          <div className="h-2 w-2 rounded-full bg-white/80" />
+                        </div>
                       </div>
+                      <div className="absolute bottom-3 left-1/2 h-1.5 w-4 -translate-x-1/2 rounded-full bg-white/60" />
                     </div>
-                    <div className="absolute bottom-3 left-1/2 h-1.5 w-4 -translate-x-1/2 rounded-full bg-white/60" />
-                  </div>
-                  
-                  {/* Name */}
-                  <span className="relative mt-2 text-sm font-bold text-foreground">
-                    {profile.name}
-                  </span>
-                </button>
-              ))}
+                    
+                    {/* Name */}
+                    <span className="relative mt-2 text-sm font-bold text-foreground">
+                      {profile.name}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
