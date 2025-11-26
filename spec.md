@@ -1,120 +1,82 @@
-# Project Specification: Math Vibe (Kids Ed-Tech App)
+# Project Specification: Math Vibe (v1.0 - Gold Master)
 
 ## 1. Project Overview
-A web-based, mobile-first educational application for 2nd-grade students (approx. 8 years old) to practice basic arithmetic (add, subtract, multiply, divide).
-**Core Value:** Gamified learning with immediate feedback, simple "Netflix-style" profile switching, and local persistence via Supabase. Optimized for touch screens (iPhone/iPad).
+A web-based, mobile-first educational PWA for 2nd-grade students.
+**Core Value:** Gamified arithmetic practice (Add, Subtract, Multiply, Divide) with immediate feedback, zero-friction profile switching, and persistent leaderboards.
+**Target Device:** Optimized strictly for Mobile (iPhone SE/Pro) & Desktop.
 
-## 2. Tech Stack & Setup Guidelines
+## 2. Tech Stack & Architecture
 * **Framework:** Next.js 14+ (App Router, TypeScript).
-* **Styling:** Tailwind CSS + `shadcn/ui` (Critical: Use `npx shadcn@latest init` to scaffold).
+* **Styling:** Tailwind CSS + `shadcn/ui`.
 * **Icons:** Lucide React.
-* **Backend/DB:** Supabase (PostgreSQL) for Profiles and Leaderboards.
-* **State Management:** React Hooks + Supabase Realtime (optional).
-* **Mobile-First Config:**
-    * Disable pinch-to-zoom in `viewport`.
-    * Use large touch targets (min 48px).
-    * Prevent pull-to-refresh on mobile.
+* **Backend:** Supabase (PostgreSQL) via `@/lib/supabase/client`.
+* **Animations:** `canvas-confetti` (for rewards), CSS transitions for UI states.
+* **Deployment:** Vercel.
 
 ## 3. Database Schema (Supabase)
 
 ### Table: `profiles`
-(Stores the 3 local users: Hela, Tata, Mama)
-* `id` (uuid, primary key)
-* `name` (text, unique) - e.g., "Hela", "Tata", "Mama"
-* `avatar_color` (text) - hex code or tailwind class for visual distinction
+* `id` (uuid, PK)
+* `name` (text) - e.g., "Hela", "Tata", "Mama"
+* `avatar_color` (text) - Hex code used for UI styling
 * `created_at` (timestamp)
 
 ### Table: `game_results`
-(Stores history of played games for leaderboards)
-* `id` (uuid, primary key)
-* `profile_id` (uuid, foreign key -> profiles.id)
+* `id` (uuid, PK)
+* `profile_id` (uuid, FK -> profiles.id)
 * `mode` (text) - 'practice', 'time_attack', 'survival'
-* `score` (int) - For Practice/Survival: number of correct answers. For Time Attack: number of correct answers.
-* `total_questions` (int) - Total questions attempted (to calculate accuracy).
-* `duration_seconds` (int) - How long the session lasted.
+* `score` (int)
+* `total_questions` (int)
+* `duration_seconds` (int)
 * `created_at` (timestamp)
 
 ## 4. App Structure & Routes
-* `/` (Home): Profile Picker. Grid of 3 avatars. Clicking one saves context and redirects to Menu.
-* `/menu`: Dashboard. Buttons to select Game Mode.
-* `/game/[mode]`: The Active Game Loop.
-    * Params: `mode` = `practice` | `time-attack` | `survival`
-    * Query Params (optional): `limit` (for practice questions count).
-* `/leaderboard`: Tables showing top scores, filtered by Profile and Game Mode.
+* **`/` (Home):** Profile Picker.
+    * **Logic:** Fetches profiles from DB. Handles selection with "Glowing Orb" active state.
+    * **UX:** Requires user to pick a profile before entering.
+* **`/menu`:** Game Mode Selection.
+    * **Layout:** Strictly single-screen on mobile (no scrolling).
+    * **Components:** 3 huge cards (Practice, Time Attack, Survival).
+* **`/game/[mode]`:** The Core Game Loop.
+    * **Layout:** Fixed height `100dvh` (no scrolling).
+    * **Components:** Score Header, Question Card (adaptive size), NumPad (bottom fixed).
+* **`/leaderboard`:** High Scores.
+    * **Layout:** Tabbed interface (Wyzwanie / Przetrwanie).
+    * **UX:** Scrollable list inside a fixed container.
 
-## 5. Detailed Feature Requirements
+## 5. Key Features & Implementation Details
 
-### A. Math Logic Engine (CRITICAL)
-* **Operations:** +, -, *, /
-* **Constraints (2nd Grade Level):**
-    * Numbers range: 0-100.
-    * **Subtraction:** Result must be >= 0 (No negatives).
-    * **Division:** Result must be an integer (No remainders/decimals). Dividend <= 100.
-    * **General:** Result <= 100.
+### A. Math Logic Engine
+* **Constraints:** 2nd Grade level (Results 0-100, No negatives, No remainders).
+* **Generator:** `mathEngine.ts` ensures strictly valid operands.
 
-### B. Game Modes
-1.  **Practice (Trening):**
-    * User selects set size: 10, 20, or 30 questions.
-    * No timer pressure.
-    * **Feedback:** If wrong -> Show "Error" toast + Correct Answer -> Wait for user ack -> Next.
-    * **Win Condition:** Complete all questions.
-2.  **Time Attack (Wyzwanie):**
-    * Fixed time: 60 seconds.
-    * Goal: Answer as many as possible.
-    * **Feedback:** If wrong -> Flash screen red -> IMMEDIATE skip to next question (don't block).
-    * **Win Condition:** Timer hits 0.
-3.  **Survival (Przetrwanie):**
-    * Infinite questions.
-    * Player starts with 3 Hearts (Lives).
-    * **Feedback:** If wrong -> Lose 1 Heart -> Shake animation -> Next question.
-    * **Win Condition:** Lose all 3 hearts.
+### B. Input System (Hybrid)
+1.  **On-Screen NumPad:**
+    * Layout: Grid 0-9, C, Backspace.
+    * **Styling:** Uses "Shadow 3D" technique (no border-width changes) to prevent layout shifts on press.
+2.  **Physical Keyboard:**
+    * Global `keydown` listener attached in Game Page.
+    * Maps Keys `0-9`, `Backspace`, `Enter` to game functions.
 
-### C. Input Interface (Custom NumPad)
-* **DO NOT** use the native system keyboard.
-* Create a dedicated on-screen `NumPad` component.
-* Grid layout:
-    * [1] [2] [3]
-    * [4] [5] [6]
-    * [7] [8] [9]
-    * [C] [0] [⌫] (Clear, Zero, Backspace)
-* Action Button: "OK/Sprawdź" (Large, separate button).
+### C. Game Modes
+1.  **Practice:** 10/20/30 Qs. No timer. Confetti on finish.
+2.  **Time Attack:** 60s limit. Red flash on error. Auto-save score on timeout.
+3.  **Survival:** 3 Hearts. Shake animation on error. Game over on 0 hearts.
 
-### D. Leaderboard & Stats
-* On `/leaderboard`, show tabs: "Wyzwanie", "Przetrwanie".
-* Fetch Top 10 results from Supabase `game_results`.
-* "Practice" mode does not need a public leaderboard, just a local summary.
+### D. Mobile Optimization (CRITICAL)
+* **Global Layout:** `h-[100dvh] overflow-hidden` on `body` to prevent address bar scrolling issues on iOS.
+* **Adaptive Components:**
+    * Question Card shrinks font/padding on small screens (`flex-1`).
+    * Menu Cards reduce gaps/icons to fit "Above the Fold".
 
-## 6. Design & UI Guidelines
-* **Vibe:** Playful, colorful, but clean. Large fonts.
-* **Theme:** Light mode default.
-* **Components (shadcn/ui):**
-    * `Card` for the Question display (e.g., "24 + 5 = ?").
-    * `Progress` for Time Attack timer and Practice progress.
-    * `Toast` (Sonner) for feedback.
-    * `Button` for NumPad (large, h-16 or h-20).
-* **Mobile Optimization:** Use `h-screen` and `dvh` (dynamic viewport height) to prevent scrolling issues on iOS Safari.
+## 6. UI/Design Guidelines
+* **Theme:** Playful, rounded corners (`rounded-3xl`), vibrant gradients.
+* **Feedback:**
+    * **Success:** Confetti explosion + Green toast.
+    * **Error:** Screen shake + Red toast.
+* **Profile UX:** Selected profile maintains background color + adds `ring-4` and `scale-110`.
 
-## 7. Step-by-Step Implementation Plan for AI
-
-**Phase 1: Setup & Data Layer**
-1.  Initialize Next.js + Shadcn UI + Lucide Icons.
-2.  Setup Supabase Client.
-3.  Create SQL migration script for `profiles` and `game_results` tables.
-4.  Create a "Seed" script to insert the 3 profiles (Hela, Tata, Mama) if they don't exist.
-
-**Phase 2: Core Components**
-1.  Build the `NumPad` component.
-2.  Build the `ProfilePicker` (Home Page).
-3.  Implement the `MathEngine` (logic for generating valid questions).
-
-**Phase 3: Game Loop Implementation**
-1.  Build the generic Game Layout (Score header, Question Card, NumPad).
-2.  Implement "Practice Mode" logic (Count limit, detailed feedback).
-3.  Implement "Time Attack" logic (Timer, fast skip).
-4.  Implement "Survival Mode" logic (Hearts system).
-
-**Phase 4: Persistence & Polish**
-1.  Connect Game Over screens to Supabase `insert` (save score).
-2.  Build the `/leaderboard` page fetching data from Supabase.
-3.  Add "Confetti" effect on high scores or finishing a set.
-4.  Final Mobile check (meta tags for PWA).
+## 7. Future Roadmap (Post v1.0)
+* Add "Division with Remainders" mode (Level 3).
+* Add "Weekly Challenge" logic.
+* Add Sound Effects (Web Audio API).
