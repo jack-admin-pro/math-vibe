@@ -92,12 +92,12 @@ export default function HomePage() {
                   onClick={() => handleProfileSelect(profile)}
                   className={`group relative flex h-28 w-28 flex-col items-center justify-center rounded-3xl bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 ${
                     currentProfile?.id === profile.id
-                      ? "ring-4 ring-offset-2"
+                      ? "ring-4 ring-offset-2 ring-[--ring-color]"
                       : ""
                   }`}
-                  style={{
-                    ringColor: profile.avatar_color,
-                  }}
+                  style={
+                    { '--ring-color': profile.avatar_color } as React.CSSProperties
+                  }
                 >
                   {/* Glow effect on hover */}
                   <div
