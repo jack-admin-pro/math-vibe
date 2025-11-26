@@ -23,13 +23,17 @@ export default function HomePage() {
   useEffect(() => {
     async function loadProfiles() {
       try {
-        const { data, error } = await supabase
+        const result = await supabase
           .from('profiles')
-          .select('*')
-          .order('name');
+          .select('*');
         
-        if (error) throw error;
-        setProfiles((data as Profile[]) || FALLBACK_PROFILES);
+        if (result.error) throw result.error;
+        
+        // Sort profiles by name client-side
+        const sortedProfiles = (result.data as Profile[] || [])
+          .sort((a, b) => a.name.localeCompare(b.name));
+        
+        setProfiles(sortedProfiles.length > 0 ? sortedProfiles : FALLBACK_PROFILES);
       } catch (error) {
         console.error("Failed to load profiles:", error);
         // Fallback to hardcoded profiles for demo
