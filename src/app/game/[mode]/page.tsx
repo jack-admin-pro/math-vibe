@@ -18,6 +18,8 @@ import {
   Check
 } from "lucide-react";
 import { toast } from "sonner";
+import confetti from "canvas-confetti";
+import { supabase } from "@/lib/supabase/client";
 
 type GameMode = "practice" | "time-attack" | "survival";
 
@@ -50,7 +52,10 @@ export default function GamePage() {
   const [isFlashing, setIsFlashing] = useState(false);
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [scoreSaved, setScoreSaved] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const gameStartTimeRef = useRef<number | null>(null);
 
   const [gameState, setGameState] = useState<GameState>({
     score: 0,
@@ -69,6 +74,54 @@ export default function GamePage() {
     }
   }, [currentProfile, isLoading, router]);
 
+  // Save game result to Supabase
+  const saveGameResult = useCallback(async (score: number, totalQuestions: number) => {
+    if (!currentProfile || isSaving || scoreSaved) return;
+    
+    setIsSaving(true);
+    
+    try {
+      const durationSeconds = gameStartTimeRef.current 
+        ? Math.floor((Date.now() - gameStartTimeRef.current) / 1000)
+        : 0;
+
+      const { error } = await supabase
+        .from('game_results')
+        .insert({
+          profile_id: currentProfile.id,
+          mode: mode,
+          score: score,
+          total_questions: totalQuestions,
+          duration_seconds: durationSeconds,
+        });
+
+      if (error) throw error;
+      
+      setScoreSaved(true);
+      toast.success("Wynik zapisany! 🎉", { duration: 2000 });
+    } catch (error) {
+      console.error("Failed to save game result:", error);
+      toast.error("Nie udało się zapisać wyniku", { duration: 2000 });
+    } finally {
+      setIsSaving(false);
+    }
+  }, [currentProfile, mode, isSaving, scoreSaved]);
+
+  // Trigger confetti and save when game ends
+  useEffect(() => {
+    if (gameState.isGameOver && gameState.score > 0 && !scoreSaved) {
+      // Trigger confetti
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+      
+      // Save result
+      saveGameResult(gameState.score, gameState.totalQuestions);
+    }
+  }, [gameState.isGameOver, gameState.score, gameState.totalQuestions, scoreSaved, saveGameResult]);
+
   // Generate first problem when game starts
   const startGame = useCallback((targetQuestions?: number) => {
     setGameState(prev => ({
@@ -84,6 +137,8 @@ export default function GamePage() {
     setAnswer("");
     setShowPracticeSetup(false);
     setGameStarted(true);
+    setScoreSaved(false);
+    gameStartTimeRef.current = Date.now();
   }, []);
 
   // Timer for Time Attack mode
