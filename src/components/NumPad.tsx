@@ -137,14 +137,16 @@ export function NumPad({
         onClick={handleSubmit}
         disabled={disabled || value === ""}
         className={`
-          ${buttonBase}
-          mt-3 md:mt-4 w-full h-14 md:h-16
-          bg-gradient-to-r from-emerald-400 to-teal-500
-          text-white text-lg md:text-xl
-          shadow-lg shadow-emerald-200/50
-          hover:from-emerald-500 hover:to-teal-600
-          active:from-emerald-600 active:to-teal-700
-          disabled:from-gray-300 disabled:to-gray-400 disabled:shadow-none
+          flex items-center justify-center
+          mt-3 md:mt-4 w-full h-16 md:h-20
+          rounded-2xl font-bold text-lg md:text-xl
+          transition-all duration-150
+          select-none touch-target no-select
+          bg-emerald-500 text-white
+          shadow-[0_4px_0_0_#059669]
+          hover:bg-emerald-600
+          active:shadow-none active:translate-y-[4px]
+          disabled:bg-gray-400 disabled:shadow-none disabled:cursor-not-allowed disabled:opacity-60
         `}
       >
         <Check className="mr-2 h-5 w-5 md:h-6 md:w-6" />

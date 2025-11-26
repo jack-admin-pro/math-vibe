@@ -113,11 +113,6 @@ body {
   -webkit-touch-callout: none;
 }
 
-/* Numpad button active state */
-.numpad-btn:active {
-  transform: scale(0.95);
-}
-
 /* Shake animation for wrong answers */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
